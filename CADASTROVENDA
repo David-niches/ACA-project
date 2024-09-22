@@ -1,0 +1,176 @@
+Private Sub CB_EDITAR_Click()
+
+On Error GoTo Error
+
+
+Exit Sub
+Error:
+MsgBox "Erro !", vbCritical, "ERRO !"
+
+End Sub
+
+Private Sub CB_EXCLUIR_Click()
+
+On Error GoTo Error
+
+
+Exit Sub
+Error:
+MsgBox "Erro !", vbCritical, "ERRO !"
+
+End Sub
+
+Private Sub CB_LIMPAR_Click()
+
+On Error GoTo Error
+
+Call Limpar
+
+Exit Sub
+Error:
+MsgBox "Erro !", vbCritical, "ERRO !"
+
+End Sub
+
+Private Sub CB_PESQUISAR_Click()
+
+On Error GoTo Error
+
+
+Exit Sub
+Error:
+MsgBox "Erro !", vbCritical, "ERRO !"
+
+End Sub
+
+Private Sub CB_SALVAR_Click()
+
+On Error GoTo Error
+
+If TIDVENDA = "" Then
+TIDVENDA = WorksheetFunction.Max(Planilha1.Range("B1:B1000000")) + 1
+End If
+
+Dim Ver As Double
+Ver = WorksheetFunction.CountIf(Planilha1.Range("B:B"), TIDVENDA)
+
+If Ver > 0 Then
+MsgBox "Código já cadastrado!", vbCritical, "ERRO!"
+Exit Sub
+End If
+
+If TBDATA = "" Or TBCLIENTE = "" Or TBIDPROD = "" Or TBQTD = "" Then
+MsgBox "Existem dados faltantes!", vbCritical, "ERRO!"
+Exit Sub
+End If
+
+Dim Data As Date
+Data = TBDATA.Value
+
+Dim Linha As Double
+Linha = 1
+
+Dim ID As Double
+ID = TIDVENDA
+
+Dim IDprod As Double
+IDprod = TBIDPROD
+
+Dim qtd As Double
+qtd = TBQTD
+
+With Planilha1
+
+    Do
+    
+    Linha = Linha + 1
+    
+    Loop Until .Cells(Linha, 2).Value = ""
+    
+.Cells(Linha, 2).Value = ID
+.Cells(Linha, 3).Value = Data
+.Cells(Linha, 4).Value = TBCLIENTE.Text
+.Cells(Linha, 5).Value = IDprod
+.Cells(Linha, 7).Value = qtd
+
+Call Limpar
+
+MsgBox "Salvo com sucesso!", vbInformation, "Dados Salvos"
+End With
+
+Exit Sub
+Error:
+MsgBox "Erro !", vbCritical, "ERRO !"
+
+End Sub
+
+Private Sub Label1_Click()
+
+End Sub
+
+Private Sub Label2_Click()
+
+End Sub
+
+Private Sub Label3_Click()
+
+End Sub
+
+Private Sub TBCLIENTE_Change()
+
+End Sub
+
+Private Sub TBIDPROD_Change() 'Substitua TextBox1 pelo nome do seu TextBox do código do produto
+    Dim ws As Worksheet
+    Dim lastRow As Long
+    Dim produto As String
+    Dim descricao As String
+
+    'Definir a planilha e a tabela onde os dados dos produtos estão armazenados
+    Set ws = ThisWorkbook.Sheets("Planilha2") 'Substitua "Produtos" pelo nome da sua planilha
+    'lastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row Encontrar a última linha da tabela
+
+    produto = Me.TBIDPROD.Value 'Obter o código do produto digitado
+
+    'Procurar o código na tabela
+    On Error Resume Next
+    descricao = Application.WorksheetFunction.VLookup(TBIDPROD.Value, Planilha2.Range("A1:B7"), 2, False)
+    On Error GoTo 0
+
+    If Not IsError(descricao) Then
+        TDESC.Value = descricao 'Preencher o campo de descrição
+    Else
+        MsgBox "Produto não encontrado."
+    End If
+End Sub
+
+Private Sub TDESC_Change()
+
+End Sub
+
+Private Sub TIDVENDA_Change()
+
+End Sub
+
+Private Sub UserForm_Click()
+
+End Sub
+
+Private Sub UserForm_Initialize()
+TBDATA = VBA.Date
+End Sub
+
+Sub Limpar()
+
+TIDVENDA = ""
+TBDATA = ""
+TBCLIENTE = ""
+TBIDPROD = ""
+TBQTD = ""
+
+
+End Sub
+
+Sub AbrirFormulario()
+    UserForm1.Show 'Substitua UserForm1 pelo nome do seu formulário
+End Sub
