@@ -2,22 +2,22 @@ Private Sub CB_EDITAR_Click()
 
     On Error GoTo Error
     
-    Dim Data As Date
-    Data = TBDATA.Value
     
+ ' Declaração de variáveis
+    Dim Data As Date
     Dim Linha As Long
     Dim ID As Long
-    Dim IDprod As Long
-    Dim qtd As Long
-    Dim ValUn As Double
-    
+    Dim idprod As Long
+    Dim qtd As Double
+    Dim valorun As Currency
 
+    ' Atribui os valores
+    Data = TBDATA.Value
+    ID = TIDVENDA
+    idprod = CBIDPROD.Value
+    qtd = TBQTD.Value
+    valorun = TVALORUN.Value
     Linha = 1
-    ID = CLng(TIDVENDA.Value) ' Certifique-se de que o ID é um Long
-    IDprod = CLng(CBIDPROD.Value) ' Certifique-se de que o ID do produto é um Long
-    qtd = CLng(TBQTD.Value) ' Certifique-se de que a quantidade é um Long
-    ValUn = CDbl(TVALORUN.Value) ' Certifique-se de que o valor unitário é um Double
-
 
     With Planilha2
         Do
@@ -30,10 +30,10 @@ Private Sub CB_EDITAR_Click()
                 .Cells(Linha, 3).Value = Data
                 .Cells(Linha, 4).Value = CboVendedor.Value
                 .Cells(Linha, 5).Value = TBCLIENTE.Value
-                .Cells(Linha, 6).Value = IDprod
+                .Cells(Linha, 6).Value = idprod
                 .Cells(Linha, 7).Value = TDESC.Value
                 .Cells(Linha, 8).Value = qtd
-                .Cells(Linha, 9).Value = ValUn ' Valor Unitário
+                .Cells(Linha, 9).Value = valorun ' Valor Unitário
                 .Cells(Linha, 10).Value = TOBS.Value ' Observações
                 
                 MsgBox "Dados editados com sucesso!", vbInformation, "EDITAR DADOS"
@@ -75,6 +75,9 @@ Private Sub CB_EXCLUIR_Click()
                 ' Exclua a linha encontrada
                 .Rows(Linha).Delete
                 MsgBox "Dado excluído com sucesso!", vbInformation, "EXCLUIR"
+                
+                Call Limpar
+                
                 Exit Sub
             End If
             
@@ -110,7 +113,7 @@ Private Sub CB_PESQUISAR_Click()
 
     ' Obtenha os valores dos campos
     Dim IDVenda As Variant
-    Dim Data As Variante
+    Dim Data As Variant
     Dim vendedor As Variant
     Dim cliente As Variant
     Dim IDProduto As Variant
@@ -118,7 +121,6 @@ Private Sub CB_PESQUISAR_Click()
     Dim Quantidade As Variant
     Dim ValorUnitario As Variant
 
-    Data2 = TBDATA.Value
     IDVenda = TIDVENDA.Value
     Data = TBDATA.Value
     vendedor = CboVendedor.Value ' Obtenha o vendedor do ComboBox
@@ -146,15 +148,40 @@ Private Sub CB_PESQUISAR_Click()
             ' Verifique se a célula está vazia antes de continuar
             If .Cells(Linha, 2).Value = "" Then Exit Do
             
+            
+            If IsDate(Data) Then
+                Data = CDate(Data)
+                Else
+                Data = ""
+            End If
+            
+            If IsNumeric(IDProduto) Then
+                IDProduto = CLng(IDProduto)
+                Else
+                IDProduto = ""
+            End If
+            
+            If IsNumeric(Quantidade) Then
+                Quantidade = CDbl(Quantidade)
+                Else
+                Quantidade = ""
+            End If
+            
+            If IsNumeric(ValorUnitario) Then
+                ValorUnitario = CCur(ValorUnitario)
+                Else
+                ValorUnitario = ""
+            End If
+            
             ' Verifique se os campos correspondem, considerando apenas os preenchidos
-            If (IDVenda = "" Or .Cells(Linha, 2).Value = IDVenda) And _
-               (Data = "" Or .Cells(Linha, 3).Value = Data) And _
-               (vendedor = "" Or .Cells(Linha, 4).Value = vendedor) And _
-               (cliente = "" Or .Cells(Linha, 5).Value = cliente) And _
-               (IDProduto = "" Or .Cells(Linha, 6).Value = IDProduto) And _
-               (DescricaoProduto = "" Or .Cells(Linha, 7).Value = .Cells(Linha, 6).Offset(0, 1).Value) And _
-               (Quantidade = "" Or .Cells(Linha, 8).Value = TBQTD.Value) And _
-               (ValorUnitario = "" Or .Cells(Linha, 9).Value = TVALORUN.Value) Then
+            If (IDVenda = Empty Or .Cells(Linha, 2).Value = IDVenda) And _
+               (Data = Empty Or .Cells(Linha, 3).Value = Data) And _
+               (vendedor = Empty Or .Cells(Linha, 4).Value = vendedor) And _
+               (cliente = Empty Or .Cells(Linha, 5).Value = cliente) And _
+               (IDProduto = Empty Or .Cells(Linha, 6).Value = IDProduto) And _
+               (DescricaoProduto = Empty Or .Cells(Linha, 7).Value = .Cells(Linha, 6).Offset(0, 1).Value) And _
+               (Quantidade = Empty Or .Cells(Linha, 8).Value = Quantidade) And _
+               (ValorUnitario = Empty Or .Cells(Linha, 9).Value = ValorUnitario) Then
                 
                 ' Adicione os dados ao ListBox
                 ListBox1.AddItem .Cells(Linha, 2).Value ' ID Venda
@@ -212,10 +239,16 @@ Private Sub CB_SALVAR_Click()
     Dim Data As Date
     Dim Linha As Long
     Dim ID As Long
+    Dim idprod As Long
+    Dim qtd As Double
+    Dim valorun As Currency
 
     ' Atribui os valores
     Data = TBDATA.Value
     ID = TIDVENDA
+    idprod = CBIDPROD.Value
+    qtd = TBQTD.Value
+    valorun = TVALORUN.Value
 
     With Planilha2
         ' Encontra a próxima linha vazia
@@ -229,10 +262,10 @@ Private Sub CB_SALVAR_Click()
         .Cells(Linha, 3).Value = Data
         .Cells(Linha, 4).Value = CboVendedor.Value
         .Cells(Linha, 5).Value = TBCLIENTE.Value
-        .Cells(Linha, 6).Value = CBIDPROD.Value
+        .Cells(Linha, 6).Value = idprod
         .Cells(Linha, 7).Value = TDESC.Value
-        .Cells(Linha, 8).Value = TBQTD.Value
-        .Cells(Linha, 9).Value = TVALORUN.Value
+        .Cells(Linha, 8).Value = qtd
+        .Cells(Linha, 9).Value = valorun
         .Cells(Linha, 10).Value = TOBS.Value
 
         ' Chama a função para limpar os campos
@@ -426,6 +459,10 @@ TBDATA = ""
 TBCLIENTE = ""
 TBIDPROD = ""
 TBQTD = ""
+CboVendedor = ""
+TVALORUN = ""
+TOBS = ""
+
 ListBox1.Clear
 
 End Sub
