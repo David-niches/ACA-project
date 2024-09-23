@@ -1,22 +1,94 @@
 Private Sub CB_EDITAR_Click()
 
-On Error GoTo Error
+    On Error GoTo Error
+    
+    Dim Data As Date
+    Data = TBDATA.Value
+    
+    Dim Linha As Long
+    Dim ID As Long
+    Dim IDprod As Long
+    Dim qtd As Long
+    Dim ValUn As Double
+    
 
+    Linha = 1
+    ID = CLng(TIDVENDA.Value) ' Certifique-se de que o ID é um Long
+    IDprod = CLng(CBIDPROD.Value) ' Certifique-se de que o ID do produto é um Long
+    qtd = CLng(TBQTD.Value) ' Certifique-se de que a quantidade é um Long
+    ValUn = CDbl(TVALORUN.Value) ' Certifique-se de que o valor unitário é um Double
+
+
+    With Planilha2
+        Do
+            ' Verifique se a célula está vazia antes de continuar
+            If .Cells(Linha, 2).Value = "" Then Exit Do
+
+            ' Verifique se o ID corresponde à pesquisa
+            If .Cells(Linha, 2).Value = ID Then
+                ' Preencha os campos conforme encontrado
+                .Cells(Linha, 3).Value = Data
+                .Cells(Linha, 4).Value = CboVendedor.Value
+                .Cells(Linha, 5).Value = TBCLIENTE.Value
+                .Cells(Linha, 6).Value = IDprod
+                .Cells(Linha, 7).Value = TDESC.Value
+                .Cells(Linha, 8).Value = qtd
+                .Cells(Linha, 9).Value = ValUn ' Valor Unitário
+                .Cells(Linha, 10).Value = TOBS.Value ' Observações
+                
+                MsgBox "Dados editados com sucesso!", vbInformation, "EDITAR DADOS"
+                
+                Exit Sub
+            End If
+            
+            Linha = Linha + 1
+        Loop
+        
+        MsgBox "Não encontrado!", vbInformation, "EDITAR DADOS"
+        
+    End With
 
 Exit Sub
+
 Error:
-MsgBox "Erro !", vbCritical, "ERRO !"
+    MsgBox "Erro: " & Err.Description, vbCritical, "ERRO!"
 
 End Sub
 
 Private Sub CB_EXCLUIR_Click()
 
-On Error GoTo Error
+    On Error GoTo Error
 
+    Dim ID As Long
+    ID = CLng(TIDVENDA.Value) ' Certifique-se de que o ID é um Long
+
+    Dim Linha As Long
+    Linha = 1
+
+    With Planilha2
+        Do
+            ' Verifique se a célula está vazia antes de continuar
+            If .Cells(Linha, 2).Value = "" Then Exit Do
+            
+            ' Verifique se o ID corresponde à pesquisa
+            If .Cells(Linha, 2).Value = ID Then
+                ' Exclua a linha encontrada
+                .Rows(Linha).Delete
+                MsgBox "Dado excluído com sucesso!", vbInformation, "EXCLUIR"
+                Exit Sub
+            End If
+            
+            Linha = Linha + 1
+        Loop
+
+    End With
+    
 
 Exit Sub
+
 Error:
-MsgBox "Erro !", vbCritical, "ERRO !"
+    ' Tratar erro se necessário, por exemplo:
+    MsgBox "Erro: " & Err.Description, vbCritical, "ERRO!"
 
 End Sub
 
@@ -34,130 +106,317 @@ End Sub
 
 Private Sub CB_PESQUISAR_Click()
 
-On Error GoTo Error
+    On Error GoTo Error
 
+    ' Obtenha os valores dos campos
+    Dim IDVenda As Variant
+    Dim Data As Variante
+    Dim vendedor As Variant
+    Dim cliente As Variant
+    Dim IDProduto As Variant
+    Dim DescricaoProduto As Variant
+    Dim Quantidade As Variant
+    Dim ValorUnitario As Variant
+
+    Data2 = TBDATA.Value
+    IDVenda = TIDVENDA.Value
+    Data = TBDATA.Value
+    vendedor = CboVendedor.Value ' Obtenha o vendedor do ComboBox
+    cliente = TBCLIENTE.Value
+    IDProduto = CBIDPROD.Value
+    DescricaoProduto = TDESC.Value ' Campo de descrição do produto
+    Quantidade = TBQTD.Value
+    ValorUnitario = TVALORUN.Value ' Valor unitário
+
+    ' Limpe o ListBox antes de adicionar novos resultados
+    ListBox1.Clear
+
+    Call Cabecalho1
+    
+    Dim Linha As Long
+    Linha = 1
+
+    With Planilha2
+        Do
+            'Data = CVar(Data)
+            'IDProduto = CVar(IDProduto)
+            'Quantidade = CVar(Quantidade)
+            'ValorUnitario = CVar(ValorUnitario)
+            
+            ' Verifique se a célula está vazia antes de continuar
+            If .Cells(Linha, 2).Value = "" Then Exit Do
+            
+            ' Verifique se os campos correspondem, considerando apenas os preenchidos
+            If (IDVenda = "" Or .Cells(Linha, 2).Value = IDVenda) And _
+               (Data = "" Or .Cells(Linha, 3).Value = Data) And _
+               (vendedor = "" Or .Cells(Linha, 4).Value = vendedor) And _
+               (cliente = "" Or .Cells(Linha, 5).Value = cliente) And _
+               (IDProduto = "" Or .Cells(Linha, 6).Value = IDProduto) And _
+               (DescricaoProduto = "" Or .Cells(Linha, 7).Value = .Cells(Linha, 6).Offset(0, 1).Value) And _
+               (Quantidade = "" Or .Cells(Linha, 8).Value = TBQTD.Value) And _
+               (ValorUnitario = "" Or .Cells(Linha, 9).Value = TVALORUN.Value) Then
+                
+                ' Adicione os dados ao ListBox
+                ListBox1.AddItem .Cells(Linha, 2).Value ' ID Venda
+                ListBox1.List(ListBox1.ListCount - 1, 1) = .Cells(Linha, 3).Value ' Data
+                ListBox1.List(ListBox1.ListCount - 1, 2) = .Cells(Linha, 4).Value ' Vendedor
+                ListBox1.List(ListBox1.ListCount - 1, 3) = .Cells(Linha, 5).Value ' Cliente
+                ListBox1.List(ListBox1.ListCount - 1, 4) = .Cells(Linha, 6).Value ' ID Produto
+                ListBox1.List(ListBox1.ListCount - 1, 5) = .Cells(Linha, 6).Offset(0, 1).Value ' Descrição do Produto
+                ListBox1.List(ListBox1.ListCount - 1, 6) = .Cells(Linha, 8).Value ' Quantidade
+                ListBox1.List(ListBox1.ListCount - 1, 7) = .Cells(Linha, 9).Value ' Valor Unitário
+            End If
+            
+            Linha = Linha + 1
+
+        Loop
+        
+    End With
+
+    If ListBox1.ListCount = 0 Then
+        MsgBox "Nenhum resultado encontrado!", vbInformation, "PESQUISA!"
+    End If
 
 Exit Sub
+
 Error:
-MsgBox "Erro !", vbCritical, "ERRO !"
+    MsgBox "Erro: " & Err.Description, vbCritical, "ERRO!"
 
 End Sub
 
 Private Sub CB_SALVAR_Click()
 
-On Error GoTo Error
+    On Error GoTo Error
 
-If TIDVENDA = "" Then
-TIDVENDA = WorksheetFunction.Max(Planilha1.Range("B1:B1000000")) + 1
-End If
+    ' Verifica se o IDVenda está vazio e atribui o próximo ID
+    If TIDVENDA = "" Then
+        TIDVENDA = WorksheetFunction.Max(Planilha2.Range("B1:B1000000")) + 1
+    End If
 
-Dim Ver As Double
-Ver = WorksheetFunction.CountIf(Planilha1.Range("B:B"), TIDVENDA)
+    ' Verifica se o IDVenda já existe
+    Dim Ver As Double
+    Ver = WorksheetFunction.CountIf(Planilha2.Range("B:B"), TIDVENDA)
 
-If Ver > 0 Then
-MsgBox "Código já cadastrado!", vbCritical, "ERRO!"
+    If Ver > 0 Then
+        MsgBox "Código já cadastrado!", vbCritical, "ERRO!"
+        Exit Sub
+    End If
+
+    ' Verifica se todos os campos obrigatórios estão preenchidos
+    If TBDATA = "" Or TBCLIENTE = "" Or CBIDPROD = "" Or TBQTD = "" Or CboVendedor = "" Or TVALORUN = "" Then
+        MsgBox "Existem dados faltantes!", vbCritical, "ERRO!"
+        Exit Sub
+    End If
+
+    ' Declaração de variáveis
+    Dim Data As Date
+    Dim Linha As Long
+    Dim ID As Long
+
+    ' Atribui os valores
+    Data = TBDATA.Value
+    ID = TIDVENDA
+
+    With Planilha2
+        ' Encontra a próxima linha vazia
+        Linha = 1
+        Do
+            Linha = Linha + 1
+        Loop Until .Cells(Linha, 2).Value = ""
+
+        ' Atribui os dados às células
+        .Cells(Linha, 2).Value = ID
+        .Cells(Linha, 3).Value = Data
+        .Cells(Linha, 4).Value = CboVendedor.Value
+        .Cells(Linha, 5).Value = TBCLIENTE.Value
+        .Cells(Linha, 6).Value = CBIDPROD.Value
+        .Cells(Linha, 7).Value = TDESC.Value
+        .Cells(Linha, 8).Value = TBQTD.Value
+        .Cells(Linha, 9).Value = TVALORUN.Value
+        .Cells(Linha, 10).Value = TOBS.Value
+
+        ' Chama a função para limpar os campos
+        Call Limpar
+
+        MsgBox "Salvo com sucesso!", vbInformation, "Dados Salvos"
+    End With
+
 Exit Sub
-End If
 
-If TBDATA = "" Or TBCLIENTE = "" Or TBIDPROD = "" Or TBQTD = "" Then
-MsgBox "Existem dados faltantes!", vbCritical, "ERRO!"
-Exit Sub
-End If
-
-Dim Data As Date
-Data = TBDATA.Value
-
-Dim Linha As Double
-Linha = 1
-
-Dim ID As Double
-ID = TIDVENDA
-
-Dim IDprod As Double
-IDprod = TBIDPROD
-
-Dim qtd As Double
-qtd = TBQTD
-
-With Planilha1
-
-    Do
-    
-    Linha = Linha + 1
-    
-    Loop Until .Cells(Linha, 2).Value = ""
-    
-.Cells(Linha, 2).Value = ID
-.Cells(Linha, 3).Value = Data
-.Cells(Linha, 4).Value = TBCLIENTE.Text
-.Cells(Linha, 5).Value = IDprod
-.Cells(Linha, 7).Value = qtd
-
-Call Limpar
-
-MsgBox "Salvo com sucesso!", vbInformation, "Dados Salvos"
-End With
-
-Exit Sub
 Error:
-MsgBox "Erro !", vbCritical, "ERRO !"
-
+    MsgBox "Erro: " & Err.Description, vbCritical, "ERRO!"
+    
 End Sub
 
-Private Sub Label1_Click()
 
-End Sub
-
-Private Sub Label2_Click()
-
-End Sub
-
-Private Sub Label3_Click()
-
-End Sub
-
-Private Sub TBCLIENTE_Change()
-
-End Sub
-
-Private Sub TBIDPROD_Change() 'Substitua TextBox1 pelo nome do seu TextBox do código do produto
+Private Sub CBIDPROD_Change()
     Dim ws As Worksheet
-    Dim lastRow As Long
-    Dim produto As String
+    Dim codigo As String
     Dim descricao As String
+    Dim rng As Range
+    Dim celula As Range
+    Dim encontrado As Boolean
 
-    'Definir a planilha e a tabela onde os dados dos produtos estão armazenados
-    Set ws = ThisWorkbook.Sheets("Planilha2") 'Substitua "Produtos" pelo nome da sua planilha
-    'lastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row Encontrar a última linha da tabela
+    ' Defina a planilha onde estão os dados
+    Set ws = ThisWorkbook.Sheets("Produto")
+    
+    ' Obtenha o código digitado
+    codigo = Me.CBIDPROD.Value
+    encontrado = False
+    
+    ' Defina o intervalo onde os códigos estão
+    Set rng = ws.Range("A:A") ' Coluna A onde estão os códigos
 
-    produto = Me.TBIDPROD.Value 'Obter o código do produto digitado
-
-    'Procurar o código na tabela
-    On Error Resume Next
-    descricao = Application.WorksheetFunction.VLookup(TBIDPROD.Value, Planilha2.Range("A1:B7"), 2, False)
-    On Error GoTo 0
-
-    If Not IsError(descricao) Then
-        TDESC.Value = descricao 'Preencher o campo de descrição
+    ' Percorra as células na coluna A
+    For Each celula In rng.Cells
+        If celula.Value = "" Then Exit For ' Para quando encontrar uma célula vazia
+        If celula.Value = codigo Then
+            descricao = celula.Offset(0, 1).Value ' Obtenha a descrição na coluna B
+            encontrado = True
+            Exit For
+        End If
+    Next celula
+    
+    ' Preencha o campo de descrição
+    If encontrado Then
+        Me.TDESC.Value = descricao
     Else
-        MsgBox "Produto não encontrado."
+        Me.TDESC.Value = "Descrição não encontrada"
     End If
 End Sub
 
-Private Sub TDESC_Change()
+
+
+Private Sub TBIDPROD_Change()
+    Dim ws As Worksheet
+    Dim codigo As String
+    Dim descricao As String
+    Dim rng As Range
+    Dim celula As Range
+    Dim encontrado As Boolean
+
+    ' Defina a planilha onde estão os dados
+    Set ws = ThisWorkbook.Sheets("Produto")
+    
+    ' Obtenha o código digitado
+    codigo = Me.TBIDPROD.Value
+    encontrado = False
+    
+    ' Defina o intervalo onde os códigos estão
+    Set rng = ws.Range("A:A") ' Coluna A onde estão os códigos
+
+    ' Percorra as células na coluna A
+    For Each celula In rng.Cells
+        If celula.Value = "" Then Exit For ' Para quando encontrar uma célula vazia
+        If celula.Value = codigo Then
+            descricao = celula.Offset(0, 1).Value ' Obtenha a descrição na coluna B
+            encontrado = True
+            Exit For
+        End If
+    Next celula
+    
+    ' Preencha o campo de descrição
+    If encontrado Then
+        Me.TDESC.Value = descricao
+    Else
+        Me.TDESC.Value = "Descrição não encontrada"
+    End If
+End Sub
+
+Private Sub TextBox1_Change()
 
 End Sub
 
 Private Sub TIDVENDA_Change()
+    On Error GoTo Error
 
-End Sub
+    Dim ID As Variant ' Usar Variant para aceitar diferentes tipos
+    ID = TIDVENDA
 
-Private Sub UserForm_Click()
+    ' Verifique se o ID é numérico
+    If Not IsNumeric(ID) Then
+        ' Se não for numérico, limpe os campos ou saia do sub
+        TBDATA = ""
+        TBCLIENTE.Text = ""
+        CBIDPROD = ""
+        TDESC.Value = ""
+        TBQTD = ""
+        CboVendedor = ""
+        TVALORUN = ""
+        TOBS = ""
+        Exit Sub
+    End If
+
+    Dim Linha As Long
+    Linha = 1
+
+    With Planilha2
+        Do
+            ' Verifique se a célula está vazia antes de continuar
+            If .Cells(Linha, 2).Value = "" Then Exit Do
+
+            ' Verifique se o ID corresponde
+            If .Cells(Linha, 2).Value = CLng(ID) Then ' Converta ID para Long para comparação
+                ' Preencha os campos conforme encontrado
+                TBDATA = .Cells(Linha, 3).Value
+                CboVendedor = .Cells(Linha, 4).Value
+                TBCLIENTE.Text = .Cells(Linha, 5).Value
+                CBIDPROD = .Cells(Linha, 6).Value
+                TDESC.Value = .Cells(Linha, 7).Value
+                TBQTD = .Cells(Linha, 8).Value
+                TVALORUN = .Cells(Linha, 9).Value
+                TOBS = .Cells(Linha, 10).Value
+                
+                Exit Sub
+            End If
+            
+            Linha = Linha + 1
+
+        Loop
+        
+    End With
+
+    ' Se chegar aqui, o ID não foi encontrado
+    TBDATA = ""
+    TBCLIENTE.Text = ""
+    CBIDPROD = ""
+    TDESC.Value = ""
+    TBQTD = ""
+    CboVendedor = ""
+    TVALORUN = ""
+    TOBS = ""
+    
+Exit Sub
+
+Error:
+    MsgBox "Erro: " & Err.Description, vbCritical, "ERRO!"
 
 End Sub
 
 Private Sub UserForm_Initialize()
 TBDATA = VBA.Date
+
+Call Cabecalho1
+
+Dim totLIN As Long, LIN As Long
+
+totLIN = Planilha3.Range("A" & Rows.Count).End(xlUp).Row
+CBIDPROD.Clear
+
+For LIN = 2 To totLIN
+    CBIDPROD.AddItem Planilha3.Cells(LIN, 1)
+Next
+
+Dim totLIN2 As Long, LIN2 As Long
+
+totLIN2 = Planilha1.Range("B" & Rows.Count).End(xlUp).Row
+CboVendedor.Clear
+
+For LIN2 = 30 To totLIN2
+    CboVendedor.AddItem Planilha1.Cells(LIN2, 2)
+Next
+
+
 End Sub
 
 Sub Limpar()
@@ -167,10 +426,36 @@ TBDATA = ""
 TBCLIENTE = ""
 TBIDPROD = ""
 TBQTD = ""
-
+ListBox1.Clear
 
 End Sub
 
 Sub AbrirFormulario()
     UserForm1.Show 'Substitua UserForm1 pelo nome do seu formulário
+End Sub
+
+Sub Cabecalho1()
+
+On Error GoTo Erro
+
+Dim cb()
+ReDim cb(1 To 1, 1 To 8)
+cb(1, 1) = "ID VENDA"
+cb(1, 2) = "DATA"
+cb(1, 3) = "VENDEDOR"
+cb(1, 4) = "CLIENTE"
+cb(1, 5) = "ID PROD."
+cb(1, 6) = "DESCRIÇÃO PRODUTO"
+cb(1, 7) = "QTD VENDIDA"
+cb(1, 8) = "VALOR UN"
+With ListBox1
+    .ColumnCount = 8
+    .List = cb
+    .ColumnWidths = "55;80;80;120;55;120;65;55"
+End With
+
+Exit Sub
+
+Erro:
+MsgBox "Erro!", vbCritical, "Erro!"
 End Sub
